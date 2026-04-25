@@ -288,24 +288,17 @@ python test/server_cli.py --server-binary /path/to/lemonade-server
 
 CI 在 `push`、`pull_request`、`merge_group` 觸發，分以下 job 群組：
 
-**建置（Build Jobs）**
-- `build-lemonade-server-installer` — Windows MSI（`windows-latest`）
-- `build-lemonade-deb` — Ubuntu 24.04 .deb（自訂 container）
-- `build-lemonade-rpm` — Fedora .rpm
-- `build-lemonade-macos-dmg` — macOS .pkg + Tauri
-- `build-lemonade-appimage` — Linux AppImage
-
-**無推論後端測試（GitHub-hosted runners）**
-- `test-cli-endpoints-linux` — ubuntu-latest，測試類型：cli / endpoints / ollama / llamacpp-system / streaming-errors / env-vars
-- `test-cli-endpoints` — windows-latest + macos-latest，同上類型
-
-**推論測試（Self-hosted GPU/NPU runners）**
-- `test-exe-inference` — Windows，matrix：llamacpp(vulkan/rocm)、ryzenai(npu/hybrid)、flm(npu)、whisper、SD、TTS
-- `test-deb-inference` — Linux，matrix：llamacpp(vulkan/rocm)、SD、whisper、flm(npu)、TTS
-
-**發布（tag `v*` 才執行）**
-- `sign-msi-installers` — SignPath 簽署
-- `release` — 建立 GitHub Release 並上傳所有 artifacts
+| 類別 | Job | Platform | 說明 |
+|------|-----|----------|------|
+| 建置 | `build-lemonade-server-installer` | `windows-latest` | MSI 安裝包 |
+| 建置 | `build-lemonade-deb` | Ubuntu 24.04 container | .deb 套件 |
+| 建置 | `build-lemonade-rpm` | Fedora container | .rpm 套件 |
+| 建置 | `build-lemonade-macos-dmg` | `macos-latest` | .pkg + Tauri |
+| 無 GPU 測試 | `test-cli-endpoints-linux` | `ubuntu-latest` | cli / endpoints / ollama / streaming-errors / env-vars |
+| 無 GPU 測試 | `test-cli-endpoints` | `windows-latest` + `macos-latest` | 同上 |
+| 推論測試 | `test-exe-inference` | 自管 Windows GPU/NPU | llamacpp(vulkan/rocm)、ryzenai、flm、whisper、SD、TTS |
+| 推論測試 | `test-deb-inference` | 自管 Linux GPU/NPU | llamacpp(vulkan/rocm)、flm、whisper、SD、TTS |
+| 發布 | `sign-msi-installers` + `release` | tag `v*` 才執行 | SignPath 簽署 + GitHub Release |
 
 ---
 
@@ -390,15 +383,7 @@ lemond 預設綁定 `localhost:13305`。若需要對外服務：
 
 **Windows Cargo PATH 問題**
 
-若 Rust 指令找不到，執行：
-
-```powershell
-$cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
-$userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
-if (($userPath -split ";") -notcontains $cargoBin) {
-    [System.Environment]::SetEnvironmentVariable("PATH", "$cargoBin;$userPath", "User")
-}
-```
+若 Rust 指令找不到，確認 `%USERPROFILE%\.cargo\bin` 在 PATH 中，並從 Visual Studio Developer Shell 執行。
 
 **config.json 位置（各平台）**
 
@@ -473,18 +458,6 @@ Hooks（定義於 `.pre-commit-config.yaml`）：
 3. 新增後端必須實作所有 `WrappedServer` 抽象方法
 4. 不可移除 `/api/` Ollama 相容端點
 5. 不可在 `lemond` 端新增 per-client 設定（違反 Critical Invariant #11）
-
-### 6.5 CI Checks
-
-| Check | 執行時機 | Runner |
-|-------|----------|--------|
-| 建置（Windows MSI）| PR + push | `windows-latest` |
-| 建置（Linux .deb）| PR + push | Ubuntu 24.04 container |
-| 建置（macOS .pkg）| PR + push | `macos-latest` |
-| CLI/Endpoint 測試 | PR + push | GitHub-hosted（無 GPU）|
-| 推論測試 | PR（非 tag）| 自管 GPU/NPU runner |
-| MSI 簽署 | tag `v*` only | SignPath |
-| GitHub Release | tag `v*` only | `ubuntu-latest` |
 
 ---
 
