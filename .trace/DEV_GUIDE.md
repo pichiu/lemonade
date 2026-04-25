@@ -81,53 +81,34 @@ cd lemonade
 ### 2.3 建置 C++ 伺服器
 
 ```bash
-# Linux / macOS
-cmake --build --preset default
-
-# Windows (Visual Studio 2022)
-cmake --build --preset windows
-
-# Windows (Visual Studio 2026)
-cmake --build --preset vs18
+cmake --build --preset default          # Linux / macOS
+cmake --build --preset windows          # Windows (VS 2022)
+cmake --build --preset vs18             # Windows (VS 2026)
 ```
 
-### 2.4 建置產出確認
+### 2.4 建置產出
 
-| 平台 | 執行檔 | 說明 |
-|------|--------|------|
-| Linux/macOS | `build/lemond` | HTTP 伺服器主體 |
-| Linux/macOS | `build/lemonade` | CLI 客戶端 |
-| Linux/macOS | `build/lemonade-tray` | 系統列托盤（有 AppIndicator3 才存在）|
-| Windows | `build/Release/lemond.exe` | HTTP 伺服器主體 |
-| Windows | `build/Release/LemonadeServer.exe` | 內嵌伺服器 + 系統列 GUI |
-| Windows | `build/Release/lemonade.exe` | CLI 客戶端 |
+| 平台 | 主要執行檔 |
+|------|-----------|
+| Linux/macOS | `build/lemond`、`build/lemonade`、`build/lemonade-tray` |
+| Windows | `build/Release/lemond.exe`、`build/Release/LemonadeServer.exe`、`build/Release/lemonade.exe` |
 
 資源檔自動複製至 `build/resources/`（Linux/macOS）或 `build/Release/resources/`（Windows）。
 
 ### 2.5 驗證建置成功
 
 ```bash
-# Linux/macOS
-./build/lemond --version
-./build/lemonade --version
-
-# Windows
-.\build\Release\lemond.exe --version
-.\build\Release\lemonade.exe --version
+./build/lemond --version && ./build/lemonade --version
 ```
 
 ### 2.6 建置 Tauri 桌面 App（可選）
 
 ```bash
-# 需先安裝 Node.js 20+ 與 Rust
-# Linux/macOS
-cmake --build --preset default --target tauri-app
-
-# Windows
-cmake --build --preset windows --target tauri-app
+cmake --build --preset default --target tauri-app   # Linux / macOS
+cmake --build --preset windows --target tauri-app   # Windows
 ```
 
-> 初次建置會下載 ~80 個 Rust crate，需數分鐘。僅做前端 UI 迭代時，建議使用 `cd src/app && npm run dev` 熱重載（<1s 每次變更）。
+> 初次建置約需數分鐘（~80 個 Rust crate）。僅迭代前端 UI 時，使用 `cd src/app && npm run dev` 熱重載（<1s/change）。
 
 ---
 
